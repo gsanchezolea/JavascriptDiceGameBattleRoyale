@@ -1,0 +1,12 @@
+button#star-game{
+    display: block;
+}
+
+button#next-round{
+    display: none;
+}
+
+
+button#roll-dice{
+    display: none;
+}
