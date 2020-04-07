@@ -2,7 +2,7 @@
 //Variables
 var currentRound = 1;
 var listOfPlayers;
-var listOfAll
+var listOfAllRolls = new Array
 
 //Buttons
 
@@ -13,16 +13,24 @@ document.getElementById("start-game").onclick = function() {
 }
 
 document.getElementById("roll-dice").onclick = function() {
-    RollDice(listOfPlayers);
-
+    if(currentRound != 6) {
+    RollDice(listOfPlayers);    
     document.getElementById("roll-dice").style.display = "none";
     document.getElementById("next-round").style.display = "block";
+    }
+    else{
+        FinalShootout(listOfPlayers);
+    }
+
     
     
 }
 
 document.getElementById("next-round").onclick = function(){
     NextRound();
+    document.getElementById("roll-dice").style.display = "block";
+    document.getElementById("next-round").style.display = "none";
+    
 }
 
 
@@ -32,14 +40,16 @@ function StartGame(){
     DisplayNames(listOfPlayers)
     DisplayRound(currentRound);
     DisplayRollButton();
+    PlayersLeft(listOfPlayers);
 }
 
-function NextRound() {
-    currentRound++;
+function NextRound() {    
     RemoveLoosers(listOfPlayers);
+    currentRound++;
     ClearRolls(listOfPlayers)
     DisplayNames(listOfPlayers);
     DisplayRound(currentRound);
+    PlayersLeft(listOfPlayers);
 }
 
 //Defining Methods
@@ -47,9 +57,9 @@ function NextRound() {
 function NamePlayers() {
     let playerArray = new Array();
 
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 0; i < 10; i++) {
 
-        let playerName = prompt("Player " + i + ", pelase type your name...");
+        let playerName = prompt("Player " + (i + 1) + ", pelase type your name...");
         if (playerName != undefined){
         var player = {
 
@@ -102,7 +112,10 @@ function DisplayRollButton(){
 
 function RollDice(listOfPlayers) {
 
-    for (let i = 1; i < listOfPlayers.length; i++){
+    //for (let i = 0; i < listOfPlayers.length; i++){
+        listOfPlayers.forEach(element => {
+        
+    
 
         let listOfRolls = new Array();
         let d20;
@@ -115,25 +128,25 @@ function RollDice(listOfPlayers) {
         }
 
         d4 = Math.floor((Math.random()*3));
-        pick = listOfRolls[d4];
-
-        document.getElementById("r" + i).innerHTML = pick;
-        listOfRolls[i].roll = pick;
-    }   
-    
-    document.getElementById("next-round").style.display = "block";
+        pick = listOfRolls[d4];        
+        document.getElementById("r" + element.rollId).innerHTML = pick;        
+        element.roll = pick;
+    });
+   
 }
 
 function RemoveLoosers(listOfPlayers){
 
     if(currentRound < 4){
-        listOfPlayers.sort(function(a, b){return b.roll - a.roll});
+        listOfPlayers.sort(function(a, b){return a.roll - b.roll});
         listOfPlayers.splice(0,2);
+        listOfPlayers.sort(function(a, b){return a.nameId - b.nameId});
     } else if (currentRound > 3 && currentRound < 6){
-        listOfPlayers.sort(function(a, b){return b.roll - a.rol});
-        listOfPlayers.splice(0,);
+        listOfPlayers.sort(function(a, b){return a.roll - b.roll});
+        listOfPlayers.splice(0,1);
+        listOfPlayers.sort(function(a, b){return a.nameId - b.nameId});
     } else {
-
+        FinalShootout();
     }
     
 }
@@ -141,8 +154,39 @@ function RemoveLoosers(listOfPlayers){
 function ClearRolls(listOfPlayers){
 
     listOfPlayers.forEach(element => {
-        
+        element.roll = 0;
     });
+}
+
+function FinalShootout(listOfPlayers){
+    let foundWinner = false;
+    let player1Points = 0;
+    let player2Points = 0;
+    
+
+    while(!foundWinner){
+        RollDice(listOfPlayers);
+        if(listOfPlayers[0].roll > listOfPlayers[1].roll) {
+            player1Points++;
+        } else if(listOfPlayers[0].roll < listOfPlayers[1].roll) {
+            player2Points++;
+        }
+
+        if(player1Points == 3){
+            foundWinner = true;
+            alert("The WINNER of the Final Dice Shootout is " + listOfPlayers[0].name);
+        } else if (player2Points == 3){
+            foundWinner = true;
+            alert("The WINNER of the Final Dice Shootout is " + listOfPlayers[1].name);
+        }
+
+    }
+    location.reload();
+}
+
+function PlayersLeft(listOfPlayers) {
+    let quantity = listOfPlayers.length;
+    document.getElementById("players-left").innerHTML = quantity;
 }
 
 
